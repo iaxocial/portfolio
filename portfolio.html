@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MxSx | Uchenna Sunday Nicholas - Cybernetic Portfolio</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <!-- Load GSAP and ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <style>
+        /* Define scroll depth and custom background */
+        html, body {
+            height: 600vh;
+            margin: 0;
+            /* Dark, subtly textured background for contrast */
+            background: radial-gradient(circle at center, #0a0a0f 0%, #000 100%);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Neon Text for Titles */
+        .neon-title {
+            background: linear-gradient(90deg, #00d8ff, #ff0080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 5px rgba(0, 216, 255, 0.5), 0 0 10px rgba(255, 0, 128, 0.5);
+        }
+
+        /* Fixed background canvas */
+        #graphCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; 
+        }
+
+        /* Content sections: Near-solid black, high visibility for the fixed canvas */
+        .content-section {
+            background: #050505e6; /* Very dark background, minimal transparency */
+            min-height: 100vh;
+            padding: 4rem 1rem;
+            z-index: 10;
+            position: relative;
+            border-bottom: 2px solid rgba(0, 216, 255, 0.1); /* Subtle grid line */
+        }
+        /* Mobile-specific adjustments for padding */
+        @media (max-width: 640px) {
+            .content-section {
+                padding: 2rem 0.5rem; /* Reduce vertical and horizontal padding on small screens */
+            }
+        }
+
+
+        /* Neon-Glow Container Style */
+        .neon-container {
+            border: 2px solid #00d8ff;
+            box-shadow: 0 0 15px rgba(0, 216, 255, 0.4);
+            transition: all 0.3s ease-in-out;
+            background-color: #0d0d0d;
+        }
+        .neon-container:hover {
+            border-color: #ff0080;
+            box-shadow: 0 0 25px rgba(255, 0, 128, 0.6);
+            transform: translateY(-3px);
+        }
+
+        /* Sticky Nav Enhancement */
+        .sticky-header {
+            transition: opacity 0.3s ease-in-out;
+            background-color: #000000;
+            border-bottom: 2px solid #ff0080;
+        }
+
+        /* Utility Styles for Neon Elements */
+        .skill-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            background-color: #1a1a1a;
+            border: 1px solid #00d8ff;
+            color: #00d8ff;
+            font-weight: 500;
+            box-shadow: 0 0 5px rgba(0, 216, 255, 0.3);
+            transition: all 0.2s;
+        }
+        .skill-badge:hover {
+            background-color: #00d8ff;
+            color: black;
+            border-color: #ff0080;
+            box-shadow: 0 0 10px #ff0080;
+        }
+
+        .project-link-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            background-color: #1a1a1a;
+            color: #00d8ff;
+            border: 1px solid #00d8ff;
+            box-shadow: 0 0 8px rgba(0, 216, 255, 0.3);
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .project-link-btn:hover {
+            background-color: #00d8ff;
+            color: #000;
+            box-shadow: 0 0 15px #00d8ff;
+        }
+        .project-link-btn.primary {
+            background-color: #ff0080;
+            color: white;
+            border-color: #ff0080;
+            box-shadow: 0 0 8px rgba(255, 0, 128, 0.6);
+        }
+        .project-link-btn.primary:hover {
+            background-color: #cc0066;
+            box-shadow: 0 0 15px #cc0066;
+        }
+
+        .service-card {
+            border: 1px solid #1a1a1a;
+            transition: transform 0.3s ease-in-out, border-color 0.3s, box-shadow 0.3s;
+        }
+        .service-card:hover {
+            transform: scale(1.03);
+            border-color: #ff0080;
+            box-shadow: 0 0 20px rgba(255, 0, 128, 0.4);
+            background-color: #0d0d0d;
+        }
+        
+        .social-btn {
+            border: 1px solid #222;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+        .social-btn:hover {
+            background-color: #ff008020;
+            border-color: #ff0080;
+            color: #ff0080;
+            box-shadow: 0 0 10px #ff0080;
+        }
+
+        /* Custom Table Styling for Ecosystem */
+        .ecosystem-table td:first-child {
+            color: #00d8ff;
+            font-weight: 600;
+        }
+        .ecosystem-table tr {
+            border-bottom: 1px solid #1a1a1a;
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+    
+    <!-- Fixed Background Canvas -->
+    <canvas id="graphCanvas"></canvas>
+
+    <!-- Sticky Navigation Bar (Responsive: Links use small text and minimal spacing to fit on mobile) -->
+    <nav id="stickyNav" class="sticky-header fixed top-0 w-full z-50 opacity-0 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="#home" class="text-xl font-bold neon-title">MxSx</a>
+                <div class="flex space-x-2 sm:space-x-4 text-xs sm:text-sm font-medium">
+                    <a href="#about" class="nav-link text-gray-300 hover:text-[#00d8ff] transition duration-200">ABOUT</a>
+                    <a href="#skills" class="nav-link text-gray-300 hover:text-[#00d8ff] transition duration-200">SKILLS</a>
+                    <a href="#projects" class="nav-link text-gray-300 hover:text-[#00d8ff] transition duration-200">PROJECTS</a>
+                    <a href="#services" class="nav-link text-gray-300 hover:text-[#00d8ff] transition duration-200">SERVICES</a>
+                    <a href="#contact" class="nav-link text-gray-300 hover:text-[#00d8ff] transition duration-200">CONTACT</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Sections -->
+    <main class="relative z-10">
+
+        <!-- 1. HOME / HERO SECTION -->
+        <section id="home" class="content-section flex flex-col justify-center items-center text-center pt-32 pb-24">
+            <div class="max-w-4xl mx-auto px-4">
+                <p class="text-xl sm:text-2xl text-gray-400 mb-4 font-mono">:: Initializing Uchenna Sunday Nicholas ::</p>
+                <h1 class="text-5xl sm:text-7xl lg:text-8xl font-extrabold neon-title mb-6">
+                    IT Architect & Entrepreneur (MxSx)
+                </h1>
+                <p class="text-2xl sm:text-3xl text-white mb-8 font-mono">
+                    <span class="text-[#00d8ff] font-bold" id="equation">y = x<sup>1.00</sup></span>: Logic Meets Imagination
+                </p>
+
+                <!-- Vision & Mission -->
+                <div class="mt-16 space-y-8 text-left p-6 sm:p-8 rounded-xl neon-container">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-[#ff0080] border-b border-[#ff0080] pb-2">SYSTEM PROTOCOL: V & M</h2>
+                    <p class="text-gray-300 flex items-start text-sm sm:text-base">
+                        <i data-lucide="sparkles" class="w-6 h-6 mr-4 text-[#00d8ff] mt-1 flex-shrink-0"></i>
+                        <span class="flex flex-col">
+                            <span class="font-semibold text-white uppercase text-lg">Mission Command:</span> 
+                            To design and implement innovative, technology-driven systems that solve real-world challenges, empower organizations, and create sustainable impact across Africa’s digital and business landscape.
+                        </span>
+                    </p>
+                    <p class="text-gray-300 flex items-start text-sm sm:text-base">
+                        <i data-lucide="zap" class="w-6 h-6 mr-4 text-[#ff0080] mt-1 flex-shrink-0"></i>
+                        <span class="flex flex-col">
+                            <span class="font-semibold text-white uppercase text-lg">Vision Target:</span> 
+                            To lead the transformation of how technology powers everyday life and enterprise in Africa—building a future where smart systems, human ingenuity, and innovation drive growth, integrity, and prosperity.
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. ABOUT ME SECTION (Uses grid md:grid-cols-2, stacks on mobile) -->
+        <section id="about" class="content-section pt-24 pb-24">
+            <div class="max-w-7xl mx-auto px-4">
+                <h2 class="text-4xl font-bold neon-title mb-12 border-b border-[#ff0080] pb-3">ABOUT.ME | History & Education</h2>
+                
+                <div class="grid md:grid-cols-2 gap-8 sm:gap-12">
+                    <!-- History & Education -->
+                    <div class="space-y-6">
+                        <h3 class="text-2xl font-semibold text-[#00d8ff] mb-4 flex items-center">
+                            <i data-lucide="graduation-cap" class="w-6 h-6 mr-3"></i>ACADEMIC DATA STREAM
+                        </h3>
+                        <!-- Tertiary -->
+                        <div class="p-6 rounded-xl neon-container">
+                            <p class="font-bold text-xl text-white">B.Sc. Information & Communication Technology</p>
+                            <p class="text-[#ff0080] font-mono text-sm">First Class Honors, Christ Apostolic University College, Ghana - 2019</p>
+                            <ul class="list-disc list-inside ml-4 text-xs sm:text-sm mt-3 text-gray-300">
+                                <li><b>Project:</b> Agency Integrated Report And Alert Smartphone Application</li>
+                                <li><b>Leadership:</b> Student Representative Council General Secretary (2018-2019)</li>
+                            </ul>
+                        </div>
+                        <!-- NYSC -->
+                        <div class="p-6 rounded-xl neon-container">
+                            <p class="font-bold text-xl text-white">IT Instructor (National Service)</p>
+                            <p class="text-[#ff0080] font-mono text-sm">GDSS Mayo-Dasa, Taraba State, Nigeria (2020-2021)</p>
+                            <ul class="list-disc list-inside ml-4 text-xs sm:text-sm mt-3 text-gray-300">
+                                <li>Honorary certificate from NAFDAC and NDLEA for contribution to "Drugs Free and Quality Control".</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Affiliations & Awards -->
+                    <div class="space-y-6">
+                        <h3 class="text-2xl font-semibold text-[#00d8ff] mb-4 flex items-center">
+                            <i data-lucide="code-square" class="w-6 h-6 mr-3"></i>AFFILIATIONS & OBJECTIVES
+                        </h3>
+                        <div class="p-6 rounded-xl neon-container">
+                            <p class="font-bold text-xl text-white">HiveForce & Morrow TTE Ecosystem</p>
+                            <p class="text-sm text-gray-300 mt-2">Founding/Leading the <b>HiveForce</b> open-source IT project community and developing the <b>Morrow TTE</b> tech consulting and marketplace platform ecosystem.</p>
+                        </div>
+                        <div class="p-6 rounded-xl neon-container">
+                            <p class="font-bold text-xl text-white">Procurement Certification Track</p>
+                            <p class="text-sm text-gray-300 mt-2">Pursuing <b>Advance Certificate In Procurement Management</b> and <b>NCPC Procurement Associate</b>, formalizing expertise in technology sourcing.</p>
+                        </div>
+                        <div class="p-6 rounded-xl neon-container">
+                            <p class="font-bold text-xl text-white">Core Competence</p>
+                            <p class="text-sm text-gray-300 mt-2">Systems Thinking, Ethical Decision-Making, and driving digital self-sufficiency through education and accessible technology solutions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. SKILLS SECTION -->
+        <section id="skills" class="content-section pt-24 pb-24">
+            <div class="max-w-7xl mx-auto px-4">
+                <h2 class="text-4xl font-bold neon-title mb-12 border-b border-[#ff0080] pb-3">SKILLS.MATRIX | Structured Expertise</h2>
+                
+                <div class="space-y-8">
+                    
+                    <div class="p-6 rounded-xl neon-container">
+                        <h3 class="text-2xl font-semibold text-[#00d8ff] mb-4 flex items-center">
+                            <i data-lucide="terminal" class="w-5 h-5 mr-2"></i>1. Technical & Development
+                        </h3>
+                        <div class="flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm">
+                            <span class="skill-badge">Python/Django/REST Framework</span>
+                            <span class="skill-badge">React.js</span>
+                            <span class="skill-badge">MySQL & PostgreSQL</span>
+                            <span class="skill-badge">AWS / Cloud Hosting (S3, EC2)</span>
+                            <span class="skill-badge">Docker</span>
+                            <span class="skill-badge">Git/GitHub</span>
+                            <span class="skill-badge">UI/UX (Figma)</span>
+                            <span class="skill-badge">WordPress | Cpanel Admin | Php</span>
+                            <span class="skill-badge">BASE44, Lovable, Trae</span>
+                            <span class="skill-badge">N8n Automation Setup & Config</span>
+                        </div>
+                    </div>
+
+                    <div class="p-6 rounded-xl neon-container">
+                        <h3 class="text-2xl font-semibold text-[#ff0080] mb-4 flex items-center">
+                            <i data-lucide="clipboard-check" class="w-5 h-5 mr-2"></i>2. Project Management & Consulting
+                        </h3>
+                        <div class="flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm">
+                            <span class="skill-badge">IT Project Planning & Execution</span>
+                            <span class="skill-badge">Agile and Scrum Methodologies</span>
+                            <span class="skill-badge">Technical Documentation</span>
+                            <span class="skill-badge">Solution Architecture</span>
+                            <span class="skill-badge">Business Process Automation</span>
+                            <span class="skill-badge">Digital Transformation Strategy</span>
+                            <span class="skill-badge">Vendor Coordination</span>
+                            <span class="skill-badge">POS Installation / ERP Setup</span>
+                            <span class="skill-badge">CRM / Project Management Setup</span>
+                        </div>
+                    </div>
+
+                    <div class="p-6 rounded-xl neon-container">
+                        <h3 class="text-2xl font-semibold text-[#00d8ff] mb-4 flex items-center">
+                            <i data-lucide="trending-up" class="w-5 h-5 mr-2"></i>3. Product, Business & Leadership
+                        </h3>
+                        <div class="flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm">
+                            <span class="skill-badge">Tech Entrepreneurship</span>
+                            <span class="skill-badge">SaaS & Marketplace Design</span>
+                            <span class="skill-badge">UX Flow Mapping</span>
+                            <span class="skill-badge">Team Leadership & Mentoring</span>
+                            <span class="skill-badge">Operations Optimization</span>
+                            <span class="skill-badge">Fintech & E-commerce Domain</span>
+                            <span class="skill-badge">Digital Marketing & Storytelling</span>
+                            <span class="skill-badge">Supply Chain / FMCG Operations</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 4. PROJECTS SECTION (Uses grid md:grid-cols-2, stacks on mobile) -->
+        <section id="projects" class="content-section pt-24 pb-24">
+            <div class="max-w-7xl mx-auto px-4">
+                <h2 class="text-4xl font-bold neon-title mb-12 border-b border-[#ff0080] pb-3">PROJECTS | Innovation Log</h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    
+                    <!-- Project Card 1: Emergency Reporting -->
+                    <div class="p-6 rounded-xl neon-container">
+                        <h3 class="text-2xl font-bold text-white mb-2">1. Emergency Reporting and Alerting System</h3>
+                        <p class="text-xs sm:text-sm text-[#ff0080] font-semibold mb-3">IT Solutions | Completed 2019</p>
+                        <p class="text-gray-300 mb-4 text-sm">
+                            <b>Summary:</b> Real-time system for enhancing coordinated emergency response. Developed as a final year project focusing on practical application of ICT principles.
+                        </p>
+                        <div class="flex flex-wrap gap-1 text-xs mb-4">
+                            <span class="skill-badge">System Design</span>
+                            <span class="skill-badge">Mobile Application</span>
+                        </div>
+                        <div class="flex space-x-4">
+                            <a href="https://github.com/iaxocial" target="_blank" class="project-link-btn primary text-sm"><i data-lucide="github" class="w-4 h-4 mr-2"></i> GitHub Source</a>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 2: Procurement as a Service (PaaS) - Morrow TTE -->
+                    <div class="p-6 rounded-xl neon-container">
+                        <h3 class="text-2xl font-bold text-white mb-2">2. Procurement as a Service (PaaS) - Morrow TTE</h3>
+                        <p class="text-xs sm:text-sm text-[#ff0080] font-semibold mb-3">B2B B2C Technology Platform | Ongoing</p>
+                        <p class="text-gray-300 mb-4 text-sm">
+                            <b>Summary:</b> Morrow TTE is the trusted technology procurement platform for Nigeria. We connect buyers with verified vendors offering the best prices on genuine tech products, professional services, and expert repairs—all in one place. We are your strategic tech partner, ensuring what you buy is exactly what you get.
+                        </p>
+                        <div class="flex flex-wrap gap-1 text-xs mb-4">
+                            <span class="skill-badge">Technical design</span>
+                            <span class="skill-badge">Procurement Strategy</span>
+                            <span class="skill-badge">E-commerce</span>
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <a href="https://mtte.base44.app/Home" target="_blank" class="project-link-btn text-sm"><i data-lucide="link" class="w-4 h-4 mr-2"></i> Morrow Live Site</a>
+                            <a href="https://github.com/iaxocial" target="_blank" class="project-link-btn primary text-sm"><i data-lucide="github" class="w-4 h-4 mr-2"></i> GitHub Source</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Project Card 3: HiveForce (Open Source IT Community) - UPDATED LINK -->
+                    <div class="p-6 rounded-xl neon-container">
+                        <h3 class="text-2xl font-bold text-white mb-2">3. HiveForce (Open Source IT Community)</h3>
+                        <p class="text-xs sm:text-sm text-[#ff0080] font-semibold mb-3">Open Source Collaboration | Ongoing</p>
+                        <p class="text-gray-300 mb-4 text-sm">
+                            <b>Summary:</b> Initiating and cultivating a community for open-source IT projects, focused on knowledge sharing, collaboration, and practical implementation of technical solutions to drive digital self-sufficiency.
+                        </p>
+                        <div class="flex flex-wrap gap-1 text-xs mb-4">
+                            <span class="skill-badge">Community Building</span>
+                            <span class="skill-badge">Version Control</span>
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <a href="https://v0-single-page-website-smoky.vercel.app/" target="_blank" class="project-link-btn text-sm"><i data-lucide="link" class="w-4 h-4 mr-2"></i> HiveForce Live Site</a>
+                            <a href="https://github.com/iaxocial" target="_blank" class="project-link-btn primary text-sm"><i data-lucide="github" class="w-4 h-4 mr-2"></i> GitHub Hub</a>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 4: P-Autos (Pampered Automobile Service) -->
+                    <div class="p-6 rounded-xl neon-container">
+                        <h3 class="text-2xl font-bold text-white mb-2">4. P-Autos (Pampered Automobile Service)</h3>
+                        <p class="text-xs sm:text-sm text-[#ff0080] font-semibold mb-3">SaaS Platform | Automobile Services | Ongoing</p>
+                        <p class="text-gray-300 mb-4 text-sm">
+                            <b>Summary:</b> P-Autos is a subscription-based SaaS platform designed for pampered auto owners. It offers comprehensive vehicle management services including license renewal, GPS tracking, repair coordination, driver hiring, auto part sales, emergency assistance, and road safety/driving education registration.
+                        </p>
+                        <div class="flex flex-wrap gap-1 text-xs mb-4">
+                            <span class="skill-badge">SaaS & Marketplace Design</span>
+                            <span class="skill-badge">Subscription Management</span>
+                            <span class="skill-badge">System Design</span>
+                            <span class="skill-badge">E-commerce</span>
+                            <span class="skill-badge">Digital Transformation Strategy</span>
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <a href="https://p-autos.lovable.app/" target="_blank" class="project-link-btn text-sm"><i data-lucide="link" class="w-4 h-4 mr-2"></i> P-Autos Live Site</a>
+                            <a href="https://github.com/iaxocial" target="_blank" class="project-link-btn primary text-sm"><i data-lucide="github" class="w-4 h-4 mr-2"></i> GitHub Source</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MORROW ECOSYSTEM MODULES DETAIL -->
+                <div class="mt-16 p-6 sm:p-8 rounded-xl neon-container">
+                    <h3 class="text-xl sm:text-3xl font-bold text-[#00d8ff] mb-6 border-b border-gray-700 pb-3 flex items-center">
+                        <i data-lucide="layers" class="w-6 h-6 mr-3"></i>Morrow Ecosystem Modules
+                    </h3>
+
+                    <!-- Morrow Ecosystem Summary Block (UPDATED CONTENT) -->
+                    <div class="mb-8 p-4 sm:p-6 bg-[#1a1a1a] rounded-lg border border-[#ff008020]">
+                        <h4 class="text-lg sm:text-xl font-bold text-[#ff0080] mb-3">Morrow Ecosystem Summary</h4>
+                        <p class="text-gray-300 text-sm">
+                            The **Morrow Ecosystem** is a unified digital infrastructure for commerce (**Commerce Tech**) — a fully integrated environment that manages every stage of the supply chain, from business operations to consumer transactions.
+                        </p>
+                        <p class="text-gray-300 mt-3 text-sm">
+                            It’s designed to simplify and synchronize how products, services, and information move across modern economies by connecting business management, transportation, compliance, procurement, and market access into one intelligent digital framework.
+                        </p>
+                    </div>
+
+                    <!-- Links Table (Responsive: Documentation column hidden on small screens) -->
+                    <h4 class="text-xl font-bold text-[#00d8ff] mb-4">Module Status & Access</h4>
+                    <div class="overflow-x-auto rounded-lg">
+                        <table class="w-full text-left text-xs sm:text-sm ecosystem-table">
+                            <thead class="text-xs text-[#ff0080] uppercase bg-[#1a1a1a] border-b border-gray-700">
+                                <tr>
+                                    <th scope="col" class="px-3 py-2">Module</th>
+                                    <th scope="col" class="px-3 py-2">Function</th>
+                                    <th scope="col" class="px-3 py-2 text-center hidden sm:table-cell">Documentation</th>
+                                    <th scope="col" class="px-3 py-2 text-center">GitHub / Live Link</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-gray-900">
+                                    <td class="px-3 py-4 font-bold text-[#00d8ff]">Raindrop</td>
+                                    <td class="px-3 py-4 text-gray-300">Upstream supply chain integration.</td>
+                                    <td class="px-3 py-4 text-center text-gray-500 italic text-xs hidden sm:table-cell">In Development</td>
+                                    <td class="px-3 py-4 text-center text-gray-500 italic text-xs">In Development</td>
+                                </tr>
+                                <tr class="hover:bg-gray-900">
+                                    <td class="px-3 py-4 font-bold text-[#00d8ff]">Marketplace</td>
+                                    <td class="px-3 py-4 text-gray-300">Customer-facing B2C and B2B commerce platform.</td>
+                                    <td class="px-3 py-4 text-center text-gray-500 italic text-xs hidden sm:table-cell">In Development</td>
+                                    <td class="px-3 py-4 text-center text-gray-500 italic text-xs">In Development</td>
+                                </tr>
+                                <tr class="hover:bg-gray-900">
+                                    <td class="px-3 py-4 font-bold text-[#00d8ff]">Shop Studio</td>
+                                    <td class="px-3 py-4 text-gray-300">Business management tools for vendors.</td>
+                                    <td class="px-3 py-4 text-center text-gray-500 italic text-xs hidden sm:table-cell">In Development</td>
+                                    <td class="px-3 py-4 text-center text-gray-500 italic text-xs">In Development</td>
+                                </tr>
+                                <tr class="hover:bg-gray-900">
+                                    <td class="px-3 py-4 font-bold text-[#00d8ff]">Transport</td>
+                                    <td class="px-3 py-4 text-gray-300">Movement of goods and people.</td>
+                                    <td class="px-3 py-4 text-center text-gray-500 italic text-xs hidden sm:table-cell">In Development</td>
+                                    <td class="px-3 py-4 text-center text-gray-500 italic text-xs">In Development</td>
+                                </tr>
+                                <tr class="hover:bg-gray-900">
+                                    <td class="px-3 py-4 font-bold text-[#00d8ff]">Compliance (OPS)</td>
+                                    <td class="px-3 py-4 text-gray-300">Governance and quality assurance.</td>
+                                    <td class="px-3 py-4 text-center text-gray-500 italic text-xs hidden sm:table-cell">In Development</td>
+                                    <td class="px-3 py-4 text-center text-gray-500 italic text-xs">In Development</td>
+                                </tr>
+                                <tr class="hover:bg-gray-900">
+                                    <td class="px-3 py-4 font-bold text-[#00d8ff]">Meme AI</td>
+                                    <td class="px-3 py-4 text-gray-300">Intelligent assistance and analysis across all modules.</td>
+                                    <td class="px-3 py-4 text-center text-gray-500 italic text-xs hidden sm:table-cell">In Development</td>
+                                    <td class="px-3 py-4 text-center text-gray-500 italic text-xs">In Development</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. SERVICES SECTION (Uses grid sm:grid-cols-2, stacks on mobile) -->
+        <section id="services" class="content-section pt-24 pb-24">
+            <div class="max-w-7xl mx-auto px-4">
+                <h2 class="text-4xl font-bold neon-title mb-12 border-b border-[#ff0080] pb-3">SERVICES | Capability Deployment</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                    
+                    <!-- Service Card Template -->
+                    <div class="p-5 rounded-xl neon-container service-card">
+                        <h3 class="text-xl font-bold text-[#00d8ff] flex items-center mb-2">
+                            <i data-lucide="type" class="w-5 h-5 mr-2"></i>Technical Writer
+                        </h3>
+                        <p class="text-gray-400 text-sm mb-3">Translating complex systems into clear documentation, proposals, and thought leadership content.</p>
+                    </div>
+                    
+                    <div class="p-5 rounded-xl neon-container service-card">
+                        <h3 class="text-xl font-bold text-[#00d8ff] flex items-center mb-2">
+                            <i data-lucide="git-fork" class="w-5 h-5 mr-2"></i>Full Stack Developer
+                        </h3>
+                        <p class="text-gray-400 text-sm mb-3"><b>REACT | Django | RestAPI</b> expert, building robust, scalable web applications and enterprise systems.</p>
+                    </div>
+
+                    <div class="p-5 rounded-xl neon-container service-card">
+                        <h3 class="text-xl font-bold text-[#00d8ff] flex items-center mb-2">
+                            <i data-lucide="package" class="w-5 h-5 mr-2"></i>Procurement Manager
+                        </h3>
+                        <p class="text-gray-400 text-sm mb-3">Strategic end-to-end management of IT sourcing, vendor relations, and cost-effective acquisitions.</p>
+                    </div>
+
+                    <div class="p-5 rounded-xl neon-container service-card">
+                        <h3 class="text-xl font-bold text-[#00d8ff] flex items-center mb-2">
+                            <i data-lucide="clipboard-list" class="w-5 h-5 mr-2"></i>IT Project Manager
+                        </h3>
+                        <p class="text-gray-400 text-sm mb-3">Leading Agile projects, ensuring alignment, coordination, and on-time delivery across technical teams.</p>
+                    </div>
+                    
+                    <div class="p-5 rounded-xl neon-container service-card">
+                        <h3 class="text-xl font-bold text-[#00d8ff] flex items-center mb-2">
+                            <i data-lucide="rss" class="w-5 h-5 mr-2"></i>WordPress Developer
+                        </h3>
+                        <p class="text-gray-400 text-sm mb-3">Full-stack WordPress solutions, WooCommerce customization, and site performance optimization.</p>
+                    </div>
+
+                    <div class="p-5 rounded-xl neon-container service-card">
+                        <h3 class="text-xl font-bold text-[#00d8ff] flex items-center mb-2">
+                            <i data-lucide="bot" class="w-5 h-5 mr-2"></i>No-Code Developer
+                        </h3>
+                        <p class="text-gray-400 text-sm mb-3">Rapid process automation and application development using BASE44, Trae, and other no-code/low-code tools.</p>
+                    </div>
+
+                    <div class="p-5 rounded-xl neon-container service-card">
+                        <h3 class="text-xl font-bold text-[#00d8ff] flex items-center mb-2">
+                            <i data-lucide="truck" class="w-5 h-5 mr-2"></i>Operations Manager
+                        </h3>
+                        <p class="text-gray-400 text-sm mb-3">Optimization of Supply Chain and FMCG operations through process digitization and workflow design.</p>
+                    </div>
+
+                    <div class="p-5 rounded-xl neon-container service-card">
+                        <h3 class="text-xl font-bold text-[#00d8ff] flex items-center mb-2">
+                            <i data-lucide="users" class="w-5 h-5 mr-2"></i>Co-Founder / Founder
+                        </h3>
+                        <p class="text-gray-400 text-sm mb-3">Tech entrepreneurship, startup strategy, product validation, and ecosystem building (Morrow TTE, HiveForce).</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. CONTACT INFORMATION SECTION (Uses grid lg:grid-cols-3, stacks on mobile) -->
+        <section id="contact" class="content-section pt-24 pb-24 min-h-[50vh]">
+            <div class="max-w-7xl mx-auto px-4">
+                <h2 class="text-4xl font-bold neon-title mb-12 border-b border-[#ff0080] pb-3">CONTACT | Establish Connection</h2>
+                
+                <div class="grid lg:grid-cols-3 gap-8">
+                    
+                    <!-- Personal Contact Card -->
+                    <div class="lg:col-span-2 p-6 sm:p-8 rounded-xl neon-container space-y-4">
+                        <h3 class="text-2xl sm:text-3xl font-bold text-[#00d8ff]">Uchenna Sunday Nicholas</h3>
+                        <p class="text-gray-300 font-mono text-base sm:text-lg">IT Consultant | Tech Entrepreneur | Solution Architect</p>
+                        
+                        <div class="grid sm:grid-cols-2 gap-4 text-gray-300 text-sm pt-4 border-t border-gray-800">
+                            <p class="flex items-center"><i data-lucide="mail" class="w-4 h-4 mr-3 text-[#ff0080] flex-shrink-0"></i>asundaynicholas@gmail.com</p>
+                            <p class="flex items-center"><i data-lucide="phone" class="w-4 h-4 mr-3 text-[#ff0080] flex-shrink-0"></i>+234 705 517 0093</p>
+                            <p class="flex items-center"><i data-lucide="map-pin" class="w-4 h-4 mr-3 text-[#ff0080] flex-shrink-0"></i>Oshodi-isolo, Lagos, Nigeria</p>
+                            <p class="flex items-center"><i data-lucide="calendar" class="w-4 h-4 mr-3 text-[#ff0080] flex-shrink-0"></i>Availability: Mon - Fri, 9am - 5pm</p>
+                        </div>
+                        
+                        <h4 class="text-xl font-semibold text-white pt-4 border-t border-gray-700">Digital Identity Protocol</h4>
+                        <div class="flex flex-wrap gap-3">
+                            <a href="https://www.linkedin.com/in/uchennasundaynicholas/" target="_blank" class="social-btn px-3 py-2 text-sm flex items-center rounded-lg"><i data-lucide="linkedin" class="w-5 h-5 mr-2"></i> LinkedIn</a>
+                            <a href="https://x.co/martinescene/" target="_blank" class="social-btn px-3 py-2 text-sm flex items-center rounded-lg"><i data-lucide="twitter" class="w-5 h-5 mr-2"></i> Twitter (X)</a>
+                            <a href="https://github.com/iaxocial" target="_blank" class="social-btn px-3 py-2 text-sm flex items-center rounded-lg"><i data-lucide="github" class="w-5 h-5 mr-2"></i> GitHub</a>
+                            <a href="https://calendly.com/asundaynicholas/new-meeting" target="_blank" class="project-link-btn primary px-3 py-2 text-sm flex items-center rounded-lg"><i data-lucide="calendar-plus" class="w-5 h-5 mr-2"></i> Book Meeting</a>
+                        </div>
+                    </div>
+
+                    <!-- Business Contact Card -->
+                    <div class="p-6 sm:p-8 rounded-xl neon-container space-y-4">
+                        <h3 class="text-2xl sm:text-3xl font-bold text-[#ff0080]">Morrow TTE (Business Unit)</h3>
+                        <p class="text-gray-300 font-mono text-base sm:text-lg">Tech Consulting | Marketplace SaaS</p>
+                        
+                        <div class="space-y-3 text-gray-300 text-sm pt-4 border-t border-gray-800">
+                            <p class="flex items-center"><i data-lucide="mail" class="w-4 h-4 mr-3 text-[#00d8ff] flex-shrink-0"></i>morrowtte@gmail.com</p>
+                            <p class="flex items-center"><i data-lucide="phone" class="w-4 h-4 mr-3 text-[#00d8ff] flex-shrink-0"></i>07063171219</p>
+                            <p class="flex items-center"><i data-lucide="globe" class="w-4 h-4 mr-3 text-[#00d8ff] flex-shrink-0"></i><a href="https://mtte.base44.app/" target="_blank" class="hover:underline">mtte.base44.app/</a></p>
+                        </div>
+
+                        <a href="https://instagram.com/morrow_tte" target="_blank" class="social-btn px-4 py-2 flex items-center rounded-lg mt-6"><i data-lucide="instagram" class="w-5 h-5 mr-2"></i> Instagram Profile</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    <!-- End Main Content Sections -->
+
+
+    <script>
+        // Wrapping the code in an IIFE to prevent global scope conflicts
+        (function() { 
+            const canvas = document.getElementById('graphCanvas');
+            const ctx = canvas.getContext('2d');
+            const equationText = document.getElementById('equation');
+            const stickyNav = document.getElementById('stickyNav');
+
+            let width, height;
+            let n = 1.0;
+            let particles = [];
+            // Hide nav until scrolling past 90% of the viewport height (approx 100vh)
+            const HOME_SECTION_HEIGHT = window.innerHeight * 0.9; 
+
+            // Initialize Lucide Icons
+            lucide.createIcons();
+
+            // --- Particle Class for Glowing Trail ---
+            class Particle {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.alpha = 1;
+                    this.size = 3 + Math.random() * 3; // Increased size
+                    // Use HSL for vivid, rotating colors
+                    const hue = (n * 360 / 6) % 360; 
+                    this.color = `hsla(${hue}, 100%, 80%, ${this.alpha})`;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    // Stronger glow effect for particles
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = this.color;
+                    ctx.fillStyle = this.color;
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0; // Reset shadow
+                }
+
+                update() {
+                    this.alpha -= 0.03; // Fade quicker
+                    this.size *= 0.96;
+                }
+            }
+
+            // --- Canvas Setup and Resize ---
+            function resizeCanvas() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            }
+            
+            // --- Main Animation Loop (Renamed from drawGraph and added RAF) ---
+            function animate() {
+                // Clear slightly less softly for better visibility of the background
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; 
+                ctx.fillRect(0, 0, width, height); 
+                
+                const margin = 60;
+                // Scale factor adjusted to be more responsive to smaller screens
+                const scaleFactor = Math.min(width, height) / (width < 640 ? 5 : 4); 
+                const scaleX = scaleFactor * 1.5;
+                const scaleY = scaleFactor;
+
+                // Axes - Faint Grid Lines
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(0, 216, 255, 0.05)'; /* Neon Blue Faint */
+                ctx.lineWidth = 1;
+
+                // Draw multiple horizontal and vertical grid lines for a matrix feel
+                for (let i = -2; i <= 2; i += 0.5) {
+                    const gridY = height / 2 - i * scaleY;
+                    const gridX = width / 2 + i * scaleX;
+                    // Horizontal lines
+                    ctx.moveTo(margin, gridY);
+                    ctx.lineTo(width - margin, gridY);
+                    // Vertical lines
+                    ctx.moveTo(gridX, margin);
+                    ctx.lineTo(gridX, height - margin);
+                }
+                ctx.stroke();
+
+                // Graph with glowing line
+                ctx.save();
+                ctx.shadowBlur = 35; /* Increased glow */
+                ctx.shadowColor = '#00d8ff'; 
+                ctx.strokeStyle = '#00d8ff';
+                ctx.lineWidth = 4; /* Thicker line */
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                
+                // Plot the function y = x^n (using closure variable n)
+                for (let x = -2; x <= 2; x += 0.01) {
+                    let y;
+                    // Use closure variable n
+                    if (x < 0 && Math.abs(n - Math.round(n)) > 0.01) {
+                        y = 0; 
+                    } else {
+                        y = Math.pow(x, n);
+                    }
+
+                    const screenX = width / 2 + x * scaleX;
+                    const screenY = height / 2 - y * scaleY;
+
+                    if (Math.abs(screenY - height / 2) > height * 2) continue;
+
+                    if (x === -2) ctx.moveTo(screenX, screenY);
+                    else ctx.lineTo(screenX, screenY);
+
+                    // Particle generation for the trail effect
+                    if (Math.random() < 0.08) { /* Increased particle density */
+                        particles.push(new Particle(screenX, screenY));
+                    }
+                }
+
+                ctx.stroke();
+                ctx.restore();
+
+                // Draw particles
+                particles.forEach((p, i) => {
+                    p.draw();
+                    p.update();
+                    if (p.alpha <= 0 || p.size < 0.5) particles.splice(i, 1);
+                });
+
+                // Request next frame for continuous animation
+                requestAnimationFrame(animate); 
+            }
+
+            // --- GSAP Scroll Integration ---
+            gsap.registerPlugin(ScrollTrigger);
+
+            gsap.to({}, {
+                scrollTrigger: {
+                    trigger: document.body,
+                    start: "top top",
+                    end: "bottom bottom",
+                    scrub: 1, 
+                    onUpdate: (self) => {
+                        n = 1 + self.progress * 5; 
+                        
+                        equationText.innerHTML = `y = x<sup>${n.toFixed(2)}</sup>`;
+
+                        // Sticky Nav Visibility
+                        if (self.scroll() > HOME_SECTION_HEIGHT) {
+                            stickyNav.style.opacity = '1';
+                        } else {
+                            stickyNav.style.opacity = '0';
+                        }
+                    }
+                }
+            });
+
+            // EXECUTION
+            resizeCanvas(); 
+            window.addEventListener('resize', resizeCanvas);
+
+
+            // Start the main animation loop on window load (animate is now defined)
+            window.onload = function() {
+                animate();
+            };
+        })(); 
+
+    </script>
+</body>
+</html>
